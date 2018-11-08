@@ -15,10 +15,10 @@ void token_init(token* tok, enum token_type _type, int _value) {
 
 interpreter_envoirment* ienv_init(const char * src) {
 
-	interpreter_envoirment* ienv = calloc(1, sizeof (interpreter_envoirment));
+	interpreter_envoirment* ienv = malloc(sizeof (interpreter_envoirment));
 
 	ienv->source_index = 0;
-	ienv->source_length = strlen(src + 1);
+	ienv->source_length = strlen(src) + 1;
 	ienv->source_buffer = calloc(1, ienv->source_length + 1);
 	strcpy(ienv->source_buffer, src);
 
@@ -32,6 +32,7 @@ void ienv_free(interpreter_envoirment* ienv) {
 
 	free(ienv->source_buffer);
 	free(ienv);
+	ienv = NULL;
 
 }
 
@@ -147,6 +148,7 @@ int ienv_expr(interpreter_envoirment* ienv, int* result) {
 
 int main(int argc, char** argv) {
 
+	interpreter_envoirment* ienv = NULL;
 	for (;;) {
 		
 		printf("calc> ");
@@ -162,15 +164,19 @@ int main(int argc, char** argv) {
 			continue;
 
 
-		interpreter_envoirment* ienv = ienv_init(raw_input);
+		ienv = ienv_init(raw_input);
 		int result;
 		if(ienv_expr(ienv, &result) == IEE_ERROR) {
 			printf("%s\n", INTERPRETER_INPUT_ERROR);
 		} else {
 			printf("%d\n", result);
 		}
+		ienv_free(ienv);
 
 	}
+
+	if(ienv)
+		ienv_free(ienv);
 
 	return 0;
 }
